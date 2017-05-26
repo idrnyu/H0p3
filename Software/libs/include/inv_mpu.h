@@ -32,7 +32,7 @@
 #define INV_XYZ_COMPASS (0x01)
 
 struct int_param_s {
-#if defined EMPL_TARGET_MSP430 || defined MOTION_DRIVER_TARGET_MSP430
+#if defined EMPL_TARGET_MSP430 || defined MOTION_DRIVER_TARGET_MSP430 || defined STM32
     void (*cb)(void);
     unsigned short pin;
     unsigned char lp_exit;

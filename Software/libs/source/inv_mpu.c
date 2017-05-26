@@ -103,7 +103,7 @@ static inline int reg_int_cb(struct int_param_s *int_param)
 #define fabs(x)     (((x)>0)?(x):-(x))
 
 #elif defined STM32
-
+#include "i2c.h"
 #include "MPU6050.h"
 #define i2c_write		stm32_i2c_write
 #define i2c_read		stm32_i2c_read
