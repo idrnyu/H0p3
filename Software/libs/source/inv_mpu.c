@@ -105,6 +105,7 @@ static inline int reg_int_cb(struct int_param_s *int_param)
 #elif defined STM32
 #include "i2c.h"
 #include "MPU6050.h"
+#include "uart.h"		// NOTE: For Debug
 #define i2c_write		stm32_i2c_write
 #define i2c_read		stm32_i2c_read
 #define delay_ms(t)		delay_ms((unsigned int)(t))
@@ -722,17 +723,21 @@ int mpu_init(struct int_param_s *int_param)
     unsigned char data[6];
 
     /* Reset device. */
+	uart_sendStr("IMU Wake up...\n\r");
+
     data[0] = BIT_RESET;
-    if (i2c_write(st.hw->addr, st.reg->pwr_mgmt_1, 1, data))
+    if (i2c_write(IMU_ADDRESS, PWR_MGMT_1, 1, data))
         return -1;
     delay_ms(100);
 
     /* Wake up chip. */
     data[0] = 0x00;
-    if (i2c_write(st.hw->addr, st.reg->pwr_mgmt_1, 1, data))
+    if (i2c_write(IMU_ADDRESS, PWR_MGMT_1, 1, data))
         return -1;
 
-   st.chip_cfg.accel_half = 0;
+	uart_sendStr("IMU Wake up successful!\n\r");
+
+   // st.chip_cfg.accel_half = 0;	// NOTE
 
 #ifdef MPU6500
     /* MPU6500 shares 4kB of memory between the DMP and the FIFO. Since the

@@ -2,6 +2,7 @@
 #include <math.h>
 #include "uart.h"
 // #include "oled.h"
+#include "i2c.h"
 #include "MPU6050.h"
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
@@ -34,25 +35,38 @@ int main() {
 	NVIC_SetPriorityGrouping(0x07 - NVIC_GROUPING);
 
 	uart_init(72, 115200);
-	delay_ms(7);	// Delay is required after MPU6050 powered up, At least 7ms
-	MPU_init();
-	SixAxis data;
+	IIC_init();
+	delay_ms(3000);
+	int result;
+	struct int_param_s int_param;
+
+	int_param.cb = 0;
+    int_param.pin = 0;
+    int_param.lp_exit = 0;
+    int_param.active_low = 1;
+    result = mpu_init(&int_param);
+
+	if(result)
+		uart_sendStr("failed\n\r");
 
 	while(1) {
-		MPU6050_getStructData(&data);
-		IMU_Comput(data);
+		uart_sendStr("Alive~\n\r");
+		delay_ms(1000);
 
-		MPU6050_debug(&data);
-		UART_CR();
-
-		uart_sendStr("Pitch: ");
-		uart_Float2Char(g_Pitch);
-		uart_sendStr("\tRoll: ");
-		uart_Float2Char(g_Roll);
-		uart_sendStr("\tYaw: ");
-		uart_Float2Char(g_Yaw);
-		UART_CR();
-		delay_ms(100);
+		// MPU6050_getStructData(&data);
+		// IMU_Comput(data);
+		//
+		// MPU6050_debug(&data);
+		// UART_CR();
+		//
+		// uart_sendStr("Pitch: ");
+		// uart_Float2Char(g_Pitch);
+		// uart_sendStr("\tRoll: ");
+		// uart_Float2Char(g_Roll);
+		// uart_sendStr("\tYaw: ");
+		// uart_Float2Char(g_Yaw);
+		// UART_CR();
+		// delay_ms(100);
 
 	}
 	while(1);
