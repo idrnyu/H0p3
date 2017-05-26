@@ -101,6 +101,26 @@ static inline int reg_int_cb(struct int_param_s *int_param)
 /* UC3 is a 32-bit processor, so abs and labs are equivalent. */
 #define labs        abs
 #define fabs(x)     (((x)>0)?(x):-(x))
+
+#elif defined STM32
+
+#include "MPU6050.h"
+#define i2c_write		stm32_i2c_write
+#define i2c_read		stm32_i2c_read
+#define delay_ms(t)		delay_ms((unsigned int)(t))
+#define get_ms(...)		do{}while(0)
+static inline int reg_int_cb(struct int_param_s *int_param)
+{
+    return 0;
+}
+#define log_i(...)		do {} while (0)
+#define log_e(...)		do {} while (0)
+/* STM32 is a 32-bit processor, so abs and labs are equivalent. */
+#define labs			abs
+#define fabs(x)			(((x)>0)?(x):-(x))
+#define min(a,b)		((a<b)?a:b)
+
+
 #else
 #error  Gyro driver is missing the system layer implementations.
 #endif
@@ -940,7 +960,7 @@ int mpu_get_temperature(long *data, unsigned long *timestamp)
 /**
  *  @brief      Read biases to the accel bias 6500 registers.
  *  This function reads from the MPU6500 accel offset cancellations registers.
- *  The format are G in +-8G format. The register is initialized with OTP 
+ *  The format are G in +-8G format. The register is initialized with OTP
  *  factory trim values.
  *  @param[in]  accel_bias  returned structure with the accel bias
  *  @return     0 if successful.
@@ -962,7 +982,7 @@ int mpu_read_6500_accel_bias(long *accel_bias) {
 /**
  *  @brief      Read biases to the accel bias 6050 registers.
  *  This function reads from the MPU6050 accel offset cancellations registers.
- *  The format are G in +-8G format. The register is initialized with OTP 
+ *  The format are G in +-8G format. The register is initialized with OTP
  *  factory trim values.
  *  @param[in]  accel_bias  returned structure with the accel bias
  *  @return     0 if successful.
@@ -2011,7 +2031,7 @@ static int gyro_self_test(long *bias_regular, long *bias_st)
     return result;
 }
 
-#endif 
+#endif
 #ifdef AK89xx_SECONDARY
 static int compass_self_test(void)
 {
@@ -2058,13 +2078,13 @@ static int compass_self_test(void)
         result |= 0x04;
 #elif defined MPU9250
     data = (short)(tmp[1] << 8) | tmp[0];
-    if ((data > 200) || (data < -200))  
+    if ((data > 200) || (data < -200))
         result |= 0x01;
     data = (short)(tmp[3] << 8) | tmp[2];
-    if ((data > 200) || (data < -200))  
+    if ((data > 200) || (data < -200))
         result |= 0x02;
     data = (short)(tmp[5] << 8) | tmp[4];
-    if ((data > -800) || (data < -3200))  
+    if ((data > -800) || (data < -3200))
         result |= 0x04;
 #endif
 AKM_restore:
@@ -2692,8 +2712,8 @@ int mpu_run_self_test(long *gyro, long *accel)
     int ii;
 #endif
     int result;
-    unsigned char accel_fsr, fifo_sensors, sensors_on;
-    unsigned short gyro_fsr, sample_rate, lpf;
+    unsigned char accel_fsr = 0, fifo_sensors, sensors_on;
+    unsigned short gyro_fsr, sample_rate = 0, lpf;
     unsigned char dmp_was_on;
 
     if (st.chip_cfg.dmp_on) {
@@ -3295,4 +3315,3 @@ lp_int_restore:
 /**
  *  @}
  */
-

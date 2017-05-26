@@ -149,3 +149,35 @@ void IMU_Comput(SixAxis cache) {
     g_Roll = _atan2(2 * g_q2 * g_q3 + 2 * g_q0 * g_q1, -2 * g_q1*g_q1 - 2 * g_q2*g_q2 + 1) * 57.3;
     g_Yaw = _atan2(2 * (g_q1 * g_q2 + g_q0 * g_q3), g_q0*g_q0 + g_q1*g_q1 - g_q2*g_q2 - g_q3*g_q3) * 57.3;
 }
+
+/* The following functions must be defined for this platform:
+ * i2c_write(unsigned char slave_addr, unsigned char reg_addr,
+ *      unsigned char length, unsigned char const *data)
+ * i2c_read(unsigned char slave_addr, unsigned char reg_addr,
+ *      unsigned char length, unsigned char *data)
+ * delay_ms(unsigned long num_ms)
+ * get_ms(unsigned long *count)
+ * reg_int_cb(void (*cb)(void), unsigned char port, unsigned char pin)
+ * labs(long x)
+ * fabsf(float x)
+ * min(int a, int b)
+ */
+
+int stm32_i2c_write(unsigned char slave_addr, unsigned char reg_addr, unsigned char length, unsigned char const *data) {
+	if(slave_addr != IMU_ADDRESS)
+		return 1;
+	while(length--) {
+		MPU_Sigle_Write(reg_addr++, *data++);
+	}
+	return 0;
+}
+
+
+int stm32_i2c_read(unsigned char slave_addr, unsigned char reg_addr, unsigned char length, unsigned char *data) {
+	if(slave_addr != IMU_ADDRESS)
+		return 1;
+	while(length--) {
+		*data++ = MPU_Sigle_Read(reg_addr++);
+	}
+	return 0;
+}
